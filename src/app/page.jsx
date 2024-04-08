@@ -1,12 +1,49 @@
-"use client"
+
 import Link from "next/link";
 import styles from "./homepage.module.css";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import parse from "html-react-parser";
+import Loading from "@/components/loading/Loading";
 
-export default function Home({ searchParams }) {
 
+const fetchData = async () => {
+  function truncate(text) {
+    if (text.length > 80) {
+      return text.substring(0, 80) + "...";
+    } else {
+      return text;
+    }
+  }
+  
+
+  try {
+    const res = await axios.get(`http://localhost:8000/api/news`);
+    const data = await res.data;
+
+     data.news.map(item => {
+       item.content = truncate(item.content)
+     })
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+export default async function Home({ searchParams }) {
+  var news = []
+  var isCache = false;
+  var data = await fetchData();
+
+
+
+  if (data && data.news && data.cache) {
+    var news = data.news;
+    var isCache = data.cache;
+    
+  }
+  else {
+    <Loading />
+  }
 
 
   function formatDate(dateString) {
@@ -25,27 +62,7 @@ export default function Home({ searchParams }) {
   }
 
 
-  
 
-  const [news, setNews] = useState([])
-  const [isCache, setIsCache] = useState(false)
-
-  const getNews = async () => {
-
-    await axios.get(`http://localhost:8000/api/news`)
-    .then(res =>  {
-      console.log(res.data)
-      setNews(res.data.news)
-      setIsCache(res.data.cache)
-    })
-    .catch(err => {
-      console.log(err)
-    })
-  }
-
-  useEffect(() => {
-    getNews();
-  }, [])
 
   return (
     <section className="bg-white">
@@ -57,7 +74,7 @@ export default function Home({ searchParams }) {
         className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
         role="alert"
       >
-        <span class="font-medium"></span> These news items are served using a temporary storage mechanism for fast access.
+        <span className="font-medium"></span> These news items are served using a temporary storage mechanism for fast access.
       </div>
       }
 
@@ -77,7 +94,7 @@ export default function Home({ searchParams }) {
                 </h2>
 
                 <p className="mb-5 font-light text-gray-500 ">
-                  {parse(item.content)}
+                 {item.content}
                 </p>
               </div>
             </div>

@@ -51,7 +51,7 @@ const [token, setToken] = useState(localStorage.getItem("token"))
     await axios.post(`http://localhost:8000/api/news`, {
         title: formik.values.title,
         slug: formik.values.slug,
-        content: value
+        content: formik.values.content
     }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -135,11 +135,13 @@ const [token, setToken] = useState(localStorage.getItem("token"))
           >
             Content
           </label>
-          <QuillEditor
-            value={value}
-                onChange={(e) => setValue(e)}
+          <textarea
+            rows={10}
+            value={formik.values.content}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            name="content"
             id="content"
-            theme="snow"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
           />
 
